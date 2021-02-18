@@ -42,20 +42,20 @@ QWidget* KU_LedDisplay_Plugin::createWidget()
     QHBoxLayout* topLayout = new QHBoxLayout;
     QComboBox* availablePortsComboBox = new QComboBox;
     topLayout->addWidget(availablePortsComboBox, 1);
-    QPushButton* refreshBtn = new QPushButton;
+    QPushButton* refreshBtn = new QPushButton(QIcon::fromTheme("view-refresh"), "");
     topLayout->addWidget(refreshBtn);
     layout->addLayout(topLayout, 0);
     QLineEdit* lineEdit = new QLineEdit;
-    layout->addWidget(lineEdit);
+    layout->addWidget(lineEdit, 1);
     main->setLayout(layout);
 
     for(auto& p : QSerialPortInfo::availablePorts())
-        availablePortsComboBox->addItem(p.description(), p.portName());
+        availablePortsComboBox->addItem(p.manufacturer() + " " + p.serialNumber() + " " + p.portName(), p.portName());
 
     connect(refreshBtn, &QPushButton::clicked, this, [=](){
         availablePortsComboBox->clear();
         for(auto& p : QSerialPortInfo::availablePorts())
-            availablePortsComboBox->addItem(p.description(), p.portName());
+            availablePortsComboBox->addItem(p.manufacturer() + " " + p.serialNumber() + " " + p.portName(), p.portName());
     });
 
     connect(&port, &QSerialPort::readyRead, this, [this](){
