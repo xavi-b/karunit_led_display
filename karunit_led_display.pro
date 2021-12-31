@@ -1,7 +1,7 @@
 TEMPLATE        = lib
 CONFIG         += plugin c++17
 DEFINES        += QT_DEPRECATED_WARNINGS
-QT             += widgets serialport
+QT             += quick serialport
 TARGET          = karunit_led_display_plugin
 DESTDIR         = $$PWD/../karunit/app/plugins
 

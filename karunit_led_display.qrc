@@ -1,3 +1,5 @@
 <RCC>
-    <qresource prefix="/karunit_whatsapp"/>
+    <qresource prefix="/">
+        <file alias="karunit_led_display/widget.qml">qml/widget.qml</file>
+    </qresource>
 </RCC>

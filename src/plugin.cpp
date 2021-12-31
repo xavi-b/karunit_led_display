@@ -1,4 +1,41 @@
 #include "plugin.h"
+#include <QQmlEngine>
+
+KU_LedDisplay_PluginConnector::KU_LedDisplay_PluginConnector(QObject* parent)
+{
+    connect(&port, &QSerialPort::readyRead, this, [this]() {
+        emitLogSignal("Received: " + QString(port.readAll()));
+    });
+}
+
+void KU_LedDisplay_PluginConnector::selectPort(int index)
+{
+    port.close();
+
+    if (index < QSerialPortInfo::availablePorts().size())
+    {
+        port.setPortName(QSerialPortInfo::availablePorts().at(index).portName());
+        port.setBaudRate(9600);
+        port.open(QIODevice::ReadWrite);
+    }
+}
+
+void KU_LedDisplay_PluginConnector::refresh()
+{
+    availablePorts.clear();
+    for (auto& p : QSerialPortInfo::availablePorts())
+        availablePorts.append(p.manufacturer() + " " + p.serialNumber() + " " + p.portName());
+
+    emit availablePortsChanged();
+}
+
+void KU_LedDisplay_PluginConnector::send(QString const& text)
+{
+    if (port.isOpen())
+        port.write(text.toUtf8());
+    else
+        emitLogSignal("Port not open: " + port.portName());
+}
 
 QString KU_LedDisplay_Plugin::name() const
 {
@@ -7,12 +44,12 @@ QString KU_LedDisplay_Plugin::name() const
 
 QString KU_LedDisplay_Plugin::id() const
 {
-    return "LedDisplay.me";
+    return "karunit_led_display";
 }
 
 KU::PLUGIN::PluginVersion KU_LedDisplay_Plugin::version() const
 {
-    return { 1, 0, 0 };
+    return {1, 0, 0};
 }
 
 QString KU_LedDisplay_Plugin::license() const
@@ -20,77 +57,21 @@ QString KU_LedDisplay_Plugin::license() const
     return "LGPL";
 }
 
-QIcon KU_LedDisplay_Plugin::icon() const
+QString KU_LedDisplay_Plugin::icon() const
 {
-    return QIcon();
+    return QString();
 }
 
 bool KU_LedDisplay_Plugin::initialize()
 {
+    qmlRegisterSingletonInstance("KarunitPlugins", 1, 0, "KUPLedDisplayPluginConnector", this->pluginConnector);
+
     return true;
 }
 
 bool KU_LedDisplay_Plugin::stop()
 {
     return true;
-}
-
-QWidget* KU_LedDisplay_Plugin::createWidget()
-{
-    QWidget* main = new QWidget;
-    QVBoxLayout* layout = new QVBoxLayout;
-    QHBoxLayout* topLayout = new QHBoxLayout;
-    QComboBox* availablePortsComboBox = new QComboBox;
-    topLayout->addWidget(availablePortsComboBox, 1);
-    QPushButton* refreshBtn = new QPushButton(QIcon::fromTheme("view-refresh"), "");
-    topLayout->addWidget(refreshBtn);
-    layout->addLayout(topLayout, 0);
-    QLineEdit* lineEdit = new QLineEdit;
-    layout->addWidget(lineEdit, 1);
-    main->setLayout(layout);
-
-    for(auto& p : QSerialPortInfo::availablePorts())
-        availablePortsComboBox->addItem(p.manufacturer() + " " + p.serialNumber() + " " + p.portName(), p.portName());
-
-    connect(refreshBtn, &QPushButton::clicked, this, [=](){
-        availablePortsComboBox->clear();
-        for(auto& p : QSerialPortInfo::availablePorts())
-            availablePortsComboBox->addItem(p.manufacturer() + " " + p.serialNumber() + " " + p.portName(), p.portName());
-    });
-
-    connect(&port, &QSerialPort::readyRead, this, [this](){
-        this->getPluginConnector()->emitLogSignal("Received: " + QString(port.readAll()));
-    });
-
-    connect(availablePortsComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=](int index){
-        port.close();
-        port.setPortName(availablePortsComboBox->itemData(index).toString());
-        port.setBaudRate(9600);
-        port.open(QIODevice::ReadWrite);
-    });
-
-    connect(lineEdit, &QLineEdit::returnPressed, this, [=](){
-        if(port.isOpen())
-        {
-            port.write(lineEdit->text().toUtf8());
-        }
-        else
-        {
-            this->getPluginConnector()->emitLogSignal("Port not open: " + port.portName());
-        }
-    });
-
-    return main;
-}
-
-QWidget* KU_LedDisplay_Plugin::createSettingsWidget()
-{
-    return new QLabel("WhatsApp");
-}
-
-QWidget* KU_LedDisplay_Plugin::createAboutWidget()
-{
-    return nullptr;
 }
 
 bool KU_LedDisplay_Plugin::loadSettings()
@@ -101,4 +82,11 @@ bool KU_LedDisplay_Plugin::loadSettings()
 bool KU_LedDisplay_Plugin::saveSettings() const
 {
     return KU::Settings::instance()->status() == QSettings::NoError;
+}
+
+KU_LedDisplay_PluginConnector* KU_LedDisplay_Plugin::getPluginConnector()
+{
+    if (this->pluginConnector == nullptr)
+        this->pluginConnector = new KU_LedDisplay_PluginConnector;
+    return qobject_cast<KU_LedDisplay_PluginConnector*>(this->pluginConnector);
 }

@@ -4,16 +4,32 @@
 #include <QtPlugin>
 #include <QIcon>
 #include <QDebug>
-#include <QLabel>
 #include <QDateTime>
-#include <QComboBox>
-#include <QVBoxLayout>
 #include <QSerialPort>
 #include <QSerialPortInfo>
-#include <QPushButton>
-#include <QLineEdit>
 #include "plugininterface.h"
 #include "settings.h"
+
+class KU_LedDisplay_PluginConnector : public KU::PLUGIN::PluginConnector
+{
+    Q_OBJECT
+
+    Q_PROPERTY(QStringList availablePorts MEMBER availablePorts NOTIFY availablePortsChanged)
+
+public:
+    KU_LedDisplay_PluginConnector(QObject* parent = nullptr);
+
+    Q_INVOKABLE void selectPort(int index);
+    Q_INVOKABLE void refresh();
+    Q_INVOKABLE void send(QString const& text);
+
+signals:
+    void availablePortsChanged();
+
+private:
+    QStringList availablePorts;
+    QSerialPort port;
+};
 
 class KU_LedDisplay_Plugin : public QObject, public KU::PLUGIN::PluginInterface
 {
@@ -22,23 +38,18 @@ class KU_LedDisplay_Plugin : public QObject, public KU::PLUGIN::PluginInterface
     Q_INTERFACES(KU::PLUGIN::PluginInterface)
 
 public:
-    virtual QString name() const override;
-    virtual QString id() const override;
+    virtual QString                   name() const override;
+    virtual QString                   id() const override;
     virtual KU::PLUGIN::PluginVersion version() const override;
-    virtual QString license() const override;
-    virtual QIcon icon() const override;
-    virtual bool initialize() override;
-    virtual bool stop() override;
+    virtual QString                   license() const override;
+    virtual QString                   icon() const override;
+    virtual bool                      initialize() override;
+    virtual bool                      stop() override;
 
-    virtual QWidget* createWidget() override;
-    virtual QWidget* createSettingsWidget() override;
-    virtual QWidget* createAboutWidget() override;
     virtual bool loadSettings() override;
     virtual bool saveSettings() const override;
 
-private:
-    QSerialPort port;
+    virtual KU_LedDisplay_PluginConnector* getPluginConnector() override;
 };
-
 
 #endif // WHATSAPPPLUGIN_H
