@@ -1,5 +1,6 @@
 <RCC>
-    <qresource prefix="/">
-        <file alias="karunit_led_display/widget.qml">qml/widget.qml</file>
+    <qresource prefix="/karunit_led_display">
+        <file alias="widget.qml">qml/widget.qml</file>
+        <file alias="about.qml">qml/about.qml</file>
     </qresource>
 </RCC>
