@@ -79,7 +79,7 @@ bool KU_LedDisplay_Plugin::loadSettings()
     return true;
 }
 
-bool KU_LedDisplay_Plugin::saveSettings() const
+bool KU_LedDisplay_Plugin::saveSettings()
 {
     return KU::Settings::instance()->status() == QSettings::NoError;
 }

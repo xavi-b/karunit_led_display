@@ -47,7 +47,7 @@ public:
     virtual bool                      stop() override;
 
     virtual bool loadSettings() override;
-    virtual bool saveSettings() const override;
+    virtual bool saveSettings() override;
 
     virtual KU_LedDisplay_PluginConnector* getPluginConnector() override;
 };
