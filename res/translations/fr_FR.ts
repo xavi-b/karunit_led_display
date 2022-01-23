@@ -11,5 +11,13 @@
         <source>Send</source>
         <translation>Envoyer</translation>
     </message>
+    <message>
+        <source>Save</source>
+        <translation>Sauvegarder</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Supprimer</translation>
+    </message>
 </context>
 </TS>

@@ -37,6 +37,29 @@ void KU_LedDisplay_PluginConnector::send(QString const& text)
         emitLogSignal("Port not open: " + port.portName());
 }
 
+void KU_LedDisplay_PluginConnector::save(const QString& text)
+{
+    this->savedTexts.append(text);
+    emit savedTextsChanged();
+}
+
+void KU_LedDisplay_PluginConnector::remove(int index)
+{
+    this->savedTexts.removeAt(index);
+    emit savedTextsChanged();
+}
+
+QStringList KU_LedDisplay_PluginConnector::getSavedTexts()
+{
+    return this->savedTexts;
+}
+
+void KU_LedDisplay_PluginConnector::setSavedTexts(const QStringList& list)
+{
+    this->savedTexts = list;
+    emit savedTextsChanged();
+}
+
 QString KU_LedDisplay_Plugin::name() const
 {
     return "LedDisplay";
@@ -76,11 +99,13 @@ bool KU_LedDisplay_Plugin::stop()
 
 bool KU_LedDisplay_Plugin::loadSettings()
 {
+    this->getPluginConnector()->setSavedTexts(KU::Settings::instance()->get(id() + "/savedTexts", QStringList()).toStringList());
     return true;
 }
 
 bool KU_LedDisplay_Plugin::saveSettings()
 {
+    KU::Settings::instance()->save(id() + "/savedTexts", this->getPluginConnector()->getSavedTexts());
     return KU::Settings::instance()->status() == QSettings::NoError;
 }
 

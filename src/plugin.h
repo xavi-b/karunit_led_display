@@ -15,6 +15,7 @@ class KU_LedDisplay_PluginConnector : public KU::PLUGIN::PluginConnector
     Q_OBJECT
 
     Q_PROPERTY(QStringList availablePorts MEMBER availablePorts NOTIFY availablePortsChanged)
+    Q_PROPERTY(QStringList savedTexts READ getSavedTexts WRITE setSavedTexts NOTIFY savedTextsChanged)
 
 public:
     KU_LedDisplay_PluginConnector(QObject* parent = nullptr);
@@ -22,13 +23,20 @@ public:
     Q_INVOKABLE void selectPort(int index);
     Q_INVOKABLE void refresh();
     Q_INVOKABLE void send(QString const& text);
+    Q_INVOKABLE void save(QString const& text);
+    Q_INVOKABLE void remove(int index);
+
+    QStringList getSavedTexts();
+    void        setSavedTexts(QStringList const& list);
 
 signals:
     void availablePortsChanged();
+    void savedTextsChanged();
 
 private:
     QStringList availablePorts;
     QSerialPort port;
+    QStringList savedTexts;
 };
 
 class KU_LedDisplay_Plugin : public QObject, public KU::PLUGIN::PluginInterface
