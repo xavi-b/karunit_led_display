@@ -8,6 +8,14 @@ KU_LedDisplay_PluginConnector::KU_LedDisplay_PluginConnector(QObject* parent)
     });
 }
 
+void KU_LedDisplay_PluginConnector::pluginSlot(const QString& signal, const QVariantMap& data)
+{
+    if (signal == "send_led")
+    {
+        send(data["text"].toString());
+    }
+}
+
 void KU_LedDisplay_PluginConnector::selectPort(int index)
 {
     port.close();

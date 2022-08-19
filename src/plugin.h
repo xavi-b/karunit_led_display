@@ -20,6 +20,8 @@ class KU_LedDisplay_PluginConnector : public KU::PLUGIN::PluginConnector
 public:
     KU_LedDisplay_PluginConnector(QObject* parent = nullptr);
 
+    virtual void pluginSlot(QString const& signal, QVariantMap const& data) override;
+
     Q_INVOKABLE void selectPort(int index);
     Q_INVOKABLE void refresh();
     Q_INVOKABLE void send(QString const& text);
